@@ -1,0 +1,27 @@
+@host = http://localhost:5188/api/entreprises
+
+### Créer une entreprise
+POST {{host}}/api/entreprises
+Content-Type: application/json
+
+{
+  "nom": "Genetec",
+  "ville": "Brossard"
+}
+
+### Créer une candidature
+POST {{host}}/api/candidatures
+Content-Type: application/json
+
+{
+  "offreId": 1
+}
+
+### Passer à Envoyée
+POST {{host}}/api/candidatures/1/statut
+Content-Type: application/json
+
+{
+  "nouveauStatut": 1,
+  "commentaire": "CV envoyé par courriel"
+}
