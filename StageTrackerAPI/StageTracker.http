@@ -1,4 +1,4 @@
-@host = http://localhost:5188/api/entreprises
+@host = http://localhost:5188
 
 ### Créer une entreprise
 POST {{host}}/api/entreprises
@@ -9,6 +9,20 @@ Content-Type: application/json
   "ville": "Brossard"
 }
 
+### Créer une offre (date limite optionnelle)
+POST {{host}}/api/offres
+Content-Type: application/json
+
+{
+  "entrepriseId": 1,
+  "titre": "Stagiaire développement logiciel",
+  "source": "Indeed",
+  "dateLimite": "2026-11-15"
+}
+
+### Offres dont la date limite arrive dans les 14 prochains jours
+GET {{host}}/api/offres/echeances?jours=14
+
 ### Créer une candidature
 POST {{host}}/api/candidatures
 Content-Type: application/json
@@ -17,7 +31,7 @@ Content-Type: application/json
   "offreId": 1
 }
 
-### Passer à Envoyée
+### Passer à Envoyée (planifie une relance dans 7 jours)
 POST {{host}}/api/candidatures/1/statut
 Content-Type: application/json
 
@@ -25,3 +39,26 @@ Content-Type: application/json
   "nouveauStatut": 1,
   "commentaire": "CV envoyé par courriel"
 }
+
+### Candidatures à relancer
+GET {{host}}/api/candidatures/a-relancer
+
+### Noter une relance
+POST {{host}}/api/candidatures/1/relance
+
+### Ajouter une entrevue (type 1 = Vidéo)
+POST {{host}}/api/candidatures/1/entrevues
+Content-Type: application/json
+
+{
+  "date": "2026-10-28T14:00:00",
+  "type": 1,
+  "dureeMinutes": 60,
+  "interlocuteurs": "Chef d'équipe et un développeur"
+}
+
+### Prochaines entrevues
+GET {{host}}/api/entrevues/a-venir
+
+### Statistiques
+GET {{host}}/api/statistiques
