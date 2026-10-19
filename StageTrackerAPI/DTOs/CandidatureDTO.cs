@@ -16,6 +16,9 @@ namespace StageTrackerAPI.DTOs
         Statut Statut,
         DateTime DateCreation,
         DateTime? DateEnvoi,
+        DateTime? DateDerniereRelance,
+        DateTime? DateProchaineRelance,
         string? Notes,
-        List<EvenementDto> Evenements);
+        List<EvenementDto> Evenements,
+        List<EntrevueLectureDto> Entrevues);
 }

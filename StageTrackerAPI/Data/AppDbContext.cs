@@ -12,6 +12,7 @@ namespace StageTrackerAPI.Data
         public DbSet<Offre> Offres => Set<Offre>();
         public DbSet<Candidature> Candidatures => Set<Candidature>();
         public DbSet<EvenementCandidature> Evenements => Set<EvenementCandidature>();
+        public DbSet<Entrevue> Entrevues => Set<Entrevue>();
 
         protected override void OnModelCreating(ModelBuilder b)
         {
@@ -34,6 +35,17 @@ namespace StageTrackerAPI.Data
             b.Entity<Entreprise>(e =>
             {
                 e.Property(x => x.Nom).IsRequired().HasMaxLength(200);
+            });
+
+            b.Entity<Entrevue>(e =>
+            {
+                e.HasOne(x => x.Candidature)
+                 .WithMany(x => x.Entrevues)
+                 .HasForeignKey(x => x.CandidatureId)
+                 .OnDelete(DeleteBehavior.Cascade);
+
+                e.Property(x => x.Interlocuteurs).HasMaxLength(300);
+                e.Property(x => x.Notes).HasMaxLength(2000);
             });
         }
     }
