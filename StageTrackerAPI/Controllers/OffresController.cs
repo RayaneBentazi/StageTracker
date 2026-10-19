@@ -57,6 +57,35 @@ namespace StageTrackerAPI.Controllers
                 o.Candidature?.Statut));
         }
 
+        // Offres dont la date limite arrive dans les prochains jours et ou je
+        // n'ai pas encore envoye ma candidature : api/offres/echeances?jours=7
+        [HttpGet("echeances")]
+        public async Task<ActionResult<List<OffreLectureDto>>> Echeances([FromQuery] int jours = 7)
+        {
+            if (jours < 1 || jours > 365)
+                return BadRequest("Le nombre de jours doit etre entre 1 et 365.");
+
+            var debut = DateTime.Today;
+            var fin = debut.AddDays(jours + 1);   // inclut toute la derniere journee
+
+            var offres = await _db.Offres
+                .Include(o => o.Entreprise)
+                .Include(o => o.Candidature)
+                .Where(o => o.DateLimite != null
+                         && o.DateLimite >= debut
+                         && o.DateLimite < fin
+                         && (o.Candidature == null || o.Candidature.Statut == Statut.Reperee))
+                .OrderBy(o => o.DateLimite)
+                .Select(o => new OffreLectureDto(
+                    o.Id, o.Titre, o.Url, o.Source, o.Ville,
+                    o.DateLimite, o.DateDecouverte,
+                    o.Entreprise!.Nom,
+                    o.Candidature != null ? o.Candidature.Statut : null))
+                .ToListAsync();
+
+            return Ok(offres);
+        }
+
         [HttpPost]
         public async Task<ActionResult<OffreLectureDto>> Creer(OffreCreationDto dto)
         {
@@ -104,9 +133,8 @@ namespace StageTrackerAPI.Controllers
             return NoContent();
         }
 
-        // ATTENTION : le veilleur Python devra reproduire exactement ce calcul.
-        // Meme normalisation, meme ordre, meme separateur, sinon l'ingestion
-        // de la phase 2 creera des doublons.
+        // Normalisation (minuscules, espaces retires) pour que la meme offre
+        // entree deux fois avec une casse differente donne la meme empreinte.
         public static string CalculerEmpreinte(string titre, string entreprise, string? url)
         {
             var brut = $"{titre.Trim().ToLowerInvariant()}|" +
