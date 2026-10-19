@@ -3,24 +3,20 @@ using StageTrackerAPI.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-
-builder.Services.AddControllers();
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-builder.Services.AddOpenApi();
-
-builder.Services.AddDbContext<AppDbContext>(o =>
-    o.UseSqlServer(builder.Configuration.GetConnectionString("Default")));
-
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+// Les tests d'integration remplacent SQL Server par SQLite en memoire,
+// donc on n'enregistre pas SQL Server dans l'environnement "Testing".
+if (!builder.Environment.IsEnvironment("Testing"))
+{
+    builder.Services.AddDbContext<AppDbContext>(o =>
+        o.UseSqlServer(builder.Configuration.GetConnectionString("Default")));
+}
+
 var app = builder.Build();
 
-app.MapControllers();
-
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -34,3 +30,6 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
+
+// Permet au projet de tests d'utiliser WebApplicationFactory<Program>
+public partial class Program { }
