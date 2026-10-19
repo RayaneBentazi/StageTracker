@@ -17,7 +17,7 @@ namespace StageTrackerAPI.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "10.0.11")
+                .HasAnnotation("ProductVersion", "10.0.13")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
@@ -37,6 +37,9 @@ namespace StageTrackerAPI.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<DateTime?>("DateEnvoi")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("DateProchaineRelance")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Notes")
@@ -112,6 +115,41 @@ namespace StageTrackerAPI.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Entreprises");
+                });
+
+            modelBuilder.Entity("StageTrackerAPI.Models.Entrevue", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("CandidatureId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("Date")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int?>("DureeMinutes")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Interlocuteurs")
+                        .HasMaxLength(300)
+                        .HasColumnType("nvarchar(300)");
+
+                    b.Property<string>("Notes")
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CandidatureId");
+
+                    b.ToTable("Entrevues");
                 });
 
             modelBuilder.Entity("StageTrackerAPI.Models.EvenementCandidature", b =>
@@ -215,6 +253,17 @@ namespace StageTrackerAPI.Migrations
                     b.Navigation("Entreprise");
                 });
 
+            modelBuilder.Entity("StageTrackerAPI.Models.Entrevue", b =>
+                {
+                    b.HasOne("StageTrackerAPI.Models.Candidature", "Candidature")
+                        .WithMany("Entrevues")
+                        .HasForeignKey("CandidatureId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Candidature");
+                });
+
             modelBuilder.Entity("StageTrackerAPI.Models.EvenementCandidature", b =>
                 {
                     b.HasOne("StageTrackerAPI.Models.Candidature", "Candidature")
@@ -239,6 +288,8 @@ namespace StageTrackerAPI.Migrations
 
             modelBuilder.Entity("StageTrackerAPI.Models.Candidature", b =>
                 {
+                    b.Navigation("Entrevues");
+
                     b.Navigation("Evenements");
                 });
 
